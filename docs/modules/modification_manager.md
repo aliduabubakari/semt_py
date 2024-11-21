@@ -18,11 +18,6 @@
 - [Usage Examples](#usage-examples)
 - [Error Handling](#error-handling)
 - [Best Practices](#best-practices)
-- [How to Add a New Modification Technique](#how-to-add-a-new-modification-technique)
-  - [Step 1: Define the Modifier Method](#step-1-define-the-modifier-method)
-  - [Step 2: Register the Modifier](#step-2-register-the-modifier)
-  - [Step 3: Update Documentation](#step-3-update-documentation)
-  - [Step 4: Test Your Modifier](#step-4-test-your-modifier)
 
 ## Installation
 
