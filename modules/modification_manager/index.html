@@ -1079,57 +1079,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#how-to-add-a-new-modification-technique" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to Add a New Modification Technique
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How to Add a New Modification Technique">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-define-the-modifier-method" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Define the Modifier Method
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-register-the-modifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Register the Modifier
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-update-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Update Documentation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-test-your-modifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Test Your Modifier
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1776,57 +1725,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#how-to-add-a-new-modification-technique" class="md-nav__link">
-    <span class="md-ellipsis">
-      How to Add a New Modification Technique
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How to Add a New Modification Technique">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-define-the-modifier-method" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Define the Modifier Method
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-register-the-modifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Register the Modifier
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-update-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Update Documentation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-test-your-modifier" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Test Your Modifier
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2092,87 +1990,6 @@
 <li>Document modifications clearly</li>
 <li>Follow consistent coding patterns</li>
 </ul>
-<h2 id="how-to-add-a-new-modification-technique">How to Add a New Modification Technique</h2>
-<p>The ModificationManager class is designed to be extensible, allowing developers to add new modification techniques easily. Follow these steps to add a new modifier:</p>
-<h3 id="step-1-define-the-modifier-method">Step 1: Define the Modifier Method</h3>
-<ol>
-<li>
-<p><strong>Create a Static Method</strong>: Define a new static method in the ModificationManager class. This method should take a <code>pandas.DataFrame</code> as its first parameter, followed by any additional parameters required for the modification.</p>
-</li>
-<li>
-<p><strong>Implement Logic</strong>: Implement the logic for your modification within this method. Ensure that it returns a modified DataFrame and, if applicable, a status message.</p>
-</li>
-<li>
-<p><strong>Error Handling</strong>: Include appropriate error handling to manage invalid inputs or operations.</p>
-</li>
-</ol>
-<p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nd">@staticmethod</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span> <span class="nf">new_modifier</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">param1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">   </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="sd">   Brief description of what the modifier does.</span>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="sd">   Parameters:</span>
-<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="sd">   - df (pd.DataFrame): Input DataFrame.</span>
-<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="sd">   - param1 (str): Description of the first parameter.</span>
-<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="sd">   - param2 (int): Description of the second parameter.</span>
-<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
-<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="sd">   Returns:</span>
-<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="sd">   - pd.DataFrame: Modified DataFrame.</span>
-<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>
-<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="sd">   Raises:</span>
-<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="sd">   - ValueError: If any parameter is invalid.</span>
-<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>
-<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="sd">   Usage:</span>
-<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="sd">   -----</span>
-<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="sd">   manager = ModificationManager()</span>
-<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="sd">   df = manager.new_modifier(df, &#39;value1&#39;, 10)</span>
-<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="sd">   &quot;&quot;&quot;</span>
-<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>   <span class="c1"># Implement the modification logic here</span>
-<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a>   <span class="k">return</span> <span class="n">df</span>
-</code></pre></div></p>
-<h3 id="step-2-register-the-modifier">Step 2: Register the Modifier</h3>
-<p><strong>Add to Modifiers Dictionary</strong>: In the <strong>init</strong> method of the ModificationManager, add your new modifier to the self.modifiers dictionary. Use a descriptive key that represents the modifier's functionality.</p>
-<p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">modifiers</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>        <span class="s1">&#39;iso_date&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso_date</span><span class="p">,</span>
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>        <span class="s1">&#39;lower_case&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_case</span><span class="p">,</span>
-<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>        <span class="s1">&#39;drop_na&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_na</span><span class="p">,</span>
-<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>        <span class="s1">&#39;rename_columns&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">,</span>
-<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>        <span class="s1">&#39;convert_dtypes&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">,</span>
-<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>        <span class="s1">&#39;reorder_columns&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_columns</span><span class="p">,</span>
-<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>        <span class="s1">&#39;new_modifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_modifier</span>  <span class="c1"># Add your new modifier here</span>
-<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="p">}</span>
-</code></pre></div></p>
-<h3 id="step-3-update-documentation">Step 3: Update Documentation</h3>
-<ol>
-<li><strong>Add Description</strong>: Update the get_modifier_description method to include a description of your new modifier.</li>
-<li><strong>Add Parameters</strong>: Update the get_modifier_parameters method to include the parameters required by your new modifier, along with usage examples.</li>
-</ol>
-<p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">def</span> <span class="nf">get_modifier_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modifier_name</span><span class="p">):</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="n">descriptions</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>        <span class="s1">&#39;iso_date&#39;</span><span class="p">:</span> <span class="s2">&quot;Convert a date column to ISO 8601 format (YYYY-MM-DD).&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>        <span class="s1">&#39;lower_case&#39;</span><span class="p">:</span> <span class="s2">&quot;Convert all string values in a column to lowercase.&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>        <span class="s1">&#39;drop_na&#39;</span><span class="p">:</span> <span class="s2">&quot;Remove rows with missing values.&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>        <span class="s1">&#39;rename_columns&#39;</span><span class="p">:</span> <span class="s2">&quot;Rename columns according to a given mapping.&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>        <span class="s1">&#39;convert_dtypes&#39;</span><span class="p">:</span> <span class="s2">&quot;Convert column data types according to a given mapping.&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>        <span class="s1">&#39;reorder_columns&#39;</span><span class="p">:</span> <span class="s2">&quot;Reorder columns according to a specified order.&quot;</span><span class="p">,</span>
-<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>        <span class="s1">&#39;new_modifier&#39;</span><span class="p">:</span> <span class="s2">&quot;Brief description of the new modifier.&quot;</span>
-<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="p">}</span>
-<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="k">return</span> <span class="n">descriptions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">modifier_name</span><span class="p">,</span> <span class="s2">&quot;Modifier not found.&quot;</span><span class="p">)</span>
-</code></pre></div></p>
-<h3 id="step-4-test-your-modifier">Step 4: Test Your Modifier</h3>
-<ol>
-<li>
-<p><strong>Unit Tests</strong>: Write unit tests to ensure your modifier works as expected. Test various scenarios, including edge cases and invalid inputs.</p>
-</li>
-<li>
-<p><strong>Integration Tests</strong>: Verify that your modifier integrates well with existing modifiers and does not introduce any regressions.</p>
-</li>
-</ol>
-<p>By following these steps, you can effectively contribute new modification techniques to the ModificationManager class, enhancing its functionality and utility for other developers.</p>
 
 
 
