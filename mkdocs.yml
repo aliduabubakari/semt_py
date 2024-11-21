@@ -36,6 +36,7 @@ nav:
     - Table Manager: modules/table_manager.md
     - Utils: modules/utils.md
   - API Reference: api.md
+  - Contributing: contributing.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -52,15 +53,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 plugins:
-  - search
   - mkdocstrings:
       handlers:
         python:
-          paths: [semt_py]
+          paths: ["./semt_py"]  # Ensure this path is correct
           options:
             show_source: true
-            show_root_heading: true
-            show_category_heading: true
-            show_submodules: true
-  - git-revision-date-localized:
-      enable_creation_date: true

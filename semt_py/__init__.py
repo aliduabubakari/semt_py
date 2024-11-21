@@ -1,4 +1,4 @@
-from .Auth_manager import AuthManager
+from .auth_manager import AuthManager
 from .extension_manager import ExtensionManager
 from .reconciliation_manager import ReconciliationManager
 from .utils import Utility

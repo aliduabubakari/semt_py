@@ -1,120 +1,141 @@
-# ReconciliationManager
+# ReconciliationManager Documentation
 
-## Overview
-
-The `ReconciliationManager` class provides a robust interface for managing reconciliation operations through API interactions. It enables users to retrieve lists of reconciliators, their parameters, and perform data reconciliation operations with various services like geocoding.
+## Table of Contents
+- [Installation](#installation)
+- [Class Overview](#class-overview)
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get_reconciliators](#get_reconciliators)
+  - [get_reconciliator_parameters](#get_reconciliator_parameters)
+  - [reconcile](#reconcile)
+- [Usage Examples](#usage-examples)
+- [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
 
 ## Installation
 
-The ReconciliationManager is part of the core library and can be imported directly:
-
 ```python
-from semt_py.reconciliation_manager import ReconciliationManager
+pip install semt_py
 ```
 
-## Prerequisites
+## Class Overview
 
-The following dependencies are required:
+The `ReconciliationManager` class provides a robust interface for managing reconciliation operations through API interactions. It enables users to retrieve lists of reconciliators, their parameters, and perform data reconciliation operations with various services like geocoding.
 
-- requests
-- pandas
-- json
-- datetime
-- urllib
-
-## Class Initialization
+## Constructor
 
 ```python
-reconciliation_manager = ReconciliationManager(base_url, auth_manager)
+def __init__(self, base_url: str, Auth_manager: AuthManager)
 ```
 
-### Parameters
-
+### Parameters:
 - `base_url` (str): The base URL for the API endpoint
-- `auth_manager` (AuthManager): An instance of AuthManager for handling authentication
+- `Auth_manager` (AuthManager): An instance of AuthManager for handling authentication
 
-## Main Features
-
-### 1. Retrieving Reconciliators
-
+### Example:
 ```python
-reconciliators_df = reconciliation_manager.get_reconciliators(debug=False)
-```
+from semt_py import ReconciliationManager, AuthManager
 
-Returns a DataFrame containing available reconciliators with their IDs, relative URLs, and names.
+auth_manager = AuthManager(
+    api_url="https://api.example.com",
+    username="your_username",
+    password="your_password"
+)
 
-#### Parameters
-
-- `debug` (bool, optional): If True, prints additional debugging information. Defaults to False.
-
-#### Returns
-
-- pandas.DataFrame: Contains columns for "id", "relativeUrl", and "name"
-
-### 2. Getting Reconciliator Parameters
-
-```python
-parameters = reconciliation_manager.get_reconciliator_parameters(id_reconciliator, debug=False)
-```
-
-Retrieves and displays parameters required for a specific reconciliator service.
-
-#### Parameters
-
-- `id_reconciliator` (str): The ID of the reconciliator to get parameters for
-- `debug` (bool, optional): If True, displays debug information. Defaults to False.
-
-#### Returns
-
-- Dict[str, Any] | None: Dictionary containing mandatory and optional parameters if found, None otherwise
-
-### 3. Performing Reconciliation
-
-```python
-final_payload, backend_payload = reconciliation_manager.reconcile(
-    table_data,
-    column_name,
-    reconciliator_id,
-    optional_columns
+reconciliation_manager = ReconciliationManager(
+    base_url="https://api.example.com",
+    Auth_manager=auth_manager
 )
 ```
 
-Performs reconciliation on specified column data using the chosen reconciliation service.
+## Methods
 
-#### Parameters
+### get_reconciliators
 
-- `table_data` (Dict): Input table data containing rows and columns
-- `column_name` (str): Name of the column to reconcile
-- `reconciliator_id` (str): ID of the reconciliation service ('geocodingHere', 'geocodingGeonames', or 'geonames')
-- `optional_columns` (List[str]): Additional columns to include in reconciliation
+```python
+def get_reconciliators(self, debug: bool = False) -> pd.DataFrame
+```
 
-#### Returns
+Retrieves and returns a list of available reconciliators.
 
-- Tuple[Dict, Dict]: Contains:
-  - final_payload: Reconciled table data with updated values
-  - backend_payload: Data prepared for backend use with metadata
+#### Parameters:
+- `debug` (bool): Enable debug mode for detailed information
+
+#### Returns:
+- pd.DataFrame: Contains columns for "id", "relativeUrl", and "name"
+
+#### Example:
+```python
+reconciliators = reconciliation_manager.get_reconciliators(debug=True)
+print(reconciliators)
+```
+
+### get_reconciliator_parameters
+
+```python
+def get_reconciliator_parameters(
+    self,
+    id_reconciliator: str,
+    debug: bool = False
+) -> Optional[Dict[str, Any]]
+```
+
+Retrieves parameters for a specific reconciliator service.
+
+#### Parameters:
+- `id_reconciliator` (str): The ID of the reconciliator
+- `debug` (bool): Enable debug mode
+
+#### Returns:
+- Optional[Dict[str, Any]]: Dictionary containing mandatory and optional parameters
+
+#### Example:
+```python
+params = reconciliation_manager.get_reconciliator_parameters(
+    'geocodingHere',
+    debug=True
+)
+print(params)
+```
+
+### reconcile
+
+```python
+def reconcile(
+    self,
+    table_data: Dict,
+    column_name: str,
+    reconciliator_id: str,
+    optional_columns: List[str]
+) -> Tuple[Optional[Dict], Optional[Dict]]
+```
+
+Performs reconciliation on specified column data.
+
+#### Parameters:
+- `table_data` (Dict): Input table data
+- `column_name` (str): Name of column to reconcile
+- `reconciliator_id` (str): ID of reconciliation service
+- `optional_columns` (List[str]): Additional columns to include
+
+#### Returns:
+- Tuple[Optional[Dict], Optional[Dict]]: Final payload and backend payload
 
 ## Usage Examples
 
 ### Basic Usage
-
 ```python
-# Initialize the ReconciliationManager
-base_url = "https://api.example.com"
-auth_manager = AuthManager(api_url="https://api.example.com/token", username="user", password="pass")
+# Initialize manager
 reconciliation_manager = ReconciliationManager(base_url, auth_manager)
 
 # Get available reconciliators
-reconciliators = reconciliation_manager.get_reconciliators()
-print(reconciliators)
+reconciliators = reconciliation_manager.get_reconciliators(debug=True)
 
-# Get parameters for a specific reconciliator
+# Get reconciliator parameters
 params = reconciliation_manager.get_reconciliator_parameters('geocodingHere')
-print(params)
 ```
 
 ### Performing Reconciliation
-
 ```python
 # Example table data
 table_data = {
@@ -136,64 +157,69 @@ table_data = {
                 "address": {"label": "123 Main St"},
                 "city": {"label": "Anytown"}
             }
-        },
-        "2": {
-            "cells": {
-                "address": {"label": "456 Oak St"},
-                "city": {"label": "Othertown"}
-            }
         }
     }
 }
 
 # Perform reconciliation
 final_payload, backend_payload = reconciliation_manager.reconcile(
-    table_data,
-    "address",
-    "geocodingHere",
-    ["city"]
+    table_data=table_data,
+    column_name="address",
+    reconciliator_id="geocodingHere",
+    optional_columns=["city"]
 )
 ```
 
 ## Error Handling
 
-The ReconciliationManager includes comprehensive error handling:
-
-- Network errors are caught and logged
-- Invalid reconciliator IDs raise ValueError
-- Failed reconciliation attempts return (None, None)
-- JSON parsing errors are handled gracefully
-
-## Debug Mode
-
-Most methods accept a `debug` parameter that enables additional logging:
-
 ```python
-# Enable debug mode for more detailed output
-reconciliators = reconciliation_manager.get_reconciliators(debug=True)
+try:
+    # Get reconciliators
+    reconciliators = reconciliation_manager.get_reconciliators(debug=True)
+    
+    # Perform reconciliation
+    final_payload, backend_payload = reconciliation_manager.reconcile(
+        table_data=table_data,
+        column_name="address",
+        reconciliator_id="geocodingHere",
+        optional_columns=["city"]
+    )
+except ValueError as e:
+    print(f"Invalid parameters: {e}")
+except requests.RequestException as e:
+    print(f"API request failed: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
 ```
 
-## Internal Methods
+## Best Practices
 
-The class includes several internal methods for data processing:
+1. **Data Preparation**
+   - Validate input data structure
+   - Ensure required columns exist
+   - Clean data before reconciliation
 
-- `_get_headers()`: Generates API request headers
-- `_prepare_input_data()`: Formats data for reconciliation
-- `_send_reconciliation_request()`: Handles API communication
-- `_compose_reconciled_table()`: Processes reconciliation results
-- `_restructure_payload()`: Updates metadata and annotations
-- `_create_backend_payload()`: Prepares data for backend systems
+2. **Error Handling**
+   - Implement comprehensive error handling
+   - Enable debug mode during development
+   - Log errors appropriately
 
-These methods are not intended for direct use but may be useful for understanding the reconciliation process.
+3. **Performance Optimization**
+   - Process data in manageable chunks
+   - Monitor API rate limits
+   - Cache reconciliator information
 
-## Notes
+4. **Security**
+   - Secure API credentials
+   - Validate input data
+   - Handle sensitive information appropriately
 
-1. The reconciliation process is synchronous and may take time for large datasets
-2. Valid reconciliator IDs are: 'geocodingHere', 'geocodingGeonames', and 'geonames'
-3. The API requires proper authentication via the AuthManager
-4. All dates are handled in UTC
+5. **Maintenance**
+   - Regular token refresh
+   - Monitor API changes
+   - Update reconciliator parameters
 
-## See Also
-
-- AuthManager documentation for authentication details
-- API documentation for endpoint specifications
+6. **Data Validation**
+   - Verify reconciliation results
+   - Check data consistency
+   - Validate geographic coordinates

@@ -4,7 +4,7 @@ import copy
 import pandas as pd
 from urllib.parse import urljoin
 from copy import deepcopy
-from .Auth_manager import AuthManager
+from .auth_manager import AuthManager
 from typing import Dict, Any, Optional, Tuple, List
 
 class ExtensionManager:
@@ -14,20 +14,6 @@ class ExtensionManager:
     This class provides methods to interact with an extension API, allowing users
     to extend columns in a table using various extenders. It handles authentication
     via an API token.
-
-    Attributes:
-    ----------
-    base_url : str
-        The base URL for the API.
-    token : str
-        The authentication token for accessing the API.
-    headers : dict
-        The headers for API requests, including authorization.
-
-    Methods:
-    -------
-    extend_column(table, column_name, extender_id, properties, other_params=None, debug=False)
-        Standardized method to extend a column using a specified extender.
     """
 
     def __init__(self, base_url, token):
@@ -212,45 +198,6 @@ class ExtensionManager:
 
         This method prepares the input data, sends a request to the extender service,
         and composes the extended table from the response.
-
-        :param table: The input table containing data.
-        :param column_name: The name of the column to extend.
-        :param extender_id: The ID of the extender to use.
-        :param properties: The properties to extend.
-        :param other_params: A dictionary of additional parameters (optional).
-        :param debug: Boolean flag to enable/disable debug information.
-
-        Returns:
-        -------
-        Tuple[Dict, Dict]
-            A tuple containing the extended table and the backend payload.
-
-        Usage:
-        -----
-        # Initialize the ExtensionManager with API credentials
-        base_url = "https://api.example.com"
-        token = "your_api_token"
-        extension_manager = ExtensionManager(base_url, token)
-
-        # Call for meteoPropertiesOpenMeteo
-        meteo_extended_table, meteo_extension_payload = extension_manager.extend_column(
-            table=reconciled_table,
-            column_name='City',
-            extender_id="meteoPropertiesOpenMeteo",
-            properties=['apparent_temperature_max', 'apparent_temperature_min', 'precipitation_sum', 'precipitation_hours'],
-            other_params={
-                'date_column_name': "Fecha_id",
-                'decimal_format': "comma"
-            })
-
-        # Call for reconciledColumnExt
-        reconciled_extended_table, reconciled_backend_payload = extension_manager.extend_column(
-            table=meteo_extended_table,
-            column_name='City',
-            extender_id='reconciledColumnExt',
-            properties=['id', 'name'],
-            other_params={}  # Empty dictionary for reconciledColumnExt
-        )
         """
         other_params = other_params or {}
 
@@ -340,9 +287,6 @@ class ExtensionManager:
     def get_extenders(self, debug=False):
         """
         Provides a list of available extenders with their main information.
-
-        :param debug: If True, prints detailed debug information.
-        :return: DataFrame containing extenders and their information.
         """
         response = self._get_extender_data(debug=debug)
         if response:
@@ -359,18 +303,11 @@ class ExtensionManager:
     def get_extender_parameters(self, extender_id, print_params=False):
         """
         Retrieves and formats the parameters needed for a specific extender service in a readable vertical structure.
-    
-        :param extender_id: The ID of the extender service.
-        :param print_params: (optional) Whether to print the retrieved parameters or not.
-        :return: A formatted string of the extender parameters, or None if the extender is not found.
         """
         
         def format_extender_params(param_dict):
             """
             Formats the extender parameters dictionary into a well-structured vertical format for readability.
-    
-            :param param_dict: The dictionary containing extender parameters.
-            :return: Formatted string with mandatory and optional parameters.
             """
             output = []
             output.append("=== Extender Parameters ===\n")
@@ -469,12 +406,6 @@ class ExtensionManager:
     def download_csv(self, dataset_id: str, table_id: str, output_file: str = "downloaded_data.csv") -> str:
         """
         Downloads a CSV file from the backend and saves it locally.
-        Args:
-            dataset_id (str): The ID of the dataset as a string.
-            table_id (str): The ID of the table as a string.
-            output_file (str): The name of the file to save the CSV data to. Defaults to "downloaded_data.csv".
-        Returns:
-            str: The path to the downloaded CSV file.
         """
         endpoint = f"/api/dataset/{dataset_id}/table/{table_id}/export"
         params = {"format": "csv"}
@@ -493,14 +424,6 @@ class ExtensionManager:
     def download_json(self, dataset_id: str, table_id: str, output_file: str = "downloaded_data.json") -> str:
         """
         Downloads a JSON file in W3C format from the backend and saves it locally.
-
-        Args:
-            dataset_id (str): The ID of the dataset as a string.
-            table_id (str): The ID of the table as a string.
-            output_file (str): The name of the file to save the JSON data to. Defaults to "downloaded_data.json".
-
-        Returns:
-            str: The path to the downloaded JSON file.
         """
         endpoint = f"/api/dataset/{dataset_id}/table/{table_id}/export"
         params = {"format": "w3c"}
@@ -524,12 +447,6 @@ class ExtensionManager:
     def parse_json(self, json_data: List[Dict]) -> pd.DataFrame:
         """
         Parses the W3C JSON format into a pandas DataFrame.
-
-        Args:
-            json_data (List[Dict]): The W3C JSON data.
-
-        Returns:
-            pd.DataFrame: A DataFrame containing the parsed data.
         """
         # Extract column names from the first item (metadata)
         columns = [key for key in json_data[0].keys() if key.startswith('th')]

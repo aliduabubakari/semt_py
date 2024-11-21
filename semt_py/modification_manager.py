@@ -24,17 +24,6 @@ class ModificationManager:
     def get_modifier_list(self):
         """
         Retrieve the list of available modifiers.
-
-        Returns:
-        -------
-        list
-            A list of available modifier names.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        modifier_list = manager.get_modifier_list()
-        print(modifier_list)
         """
         return list(self.modifiers.keys())
 
@@ -42,21 +31,6 @@ class ModificationManager:
         """
         Retrieve the description of a specific modifier.
 
-        Parameters:
-        ----------
-        modifier_name : str
-            The name of the modifier.
-
-        Returns:
-        -------
-        str
-            A description of the modifier.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        description = manager.get_modifier_description('iso_date')
-        print(description)
         """
         descriptions = {
             'iso_date': "Convert a date column to ISO 8601 format (YYYY-MM-DD).",
@@ -72,24 +46,6 @@ class ModificationManager:
         """
         Retrieve the parameters required for a specific modifier along with usage example.
 
-        Parameters:
-        ----------
-        modifier_name : str
-            The name of the modifier.
-
-        Returns:
-        -------
-        dict
-            A dictionary containing:
-            - 'parameters': Dictionary of required parameters and their types
-            - 'usage': String showing example usage of the modifier
-            - 'example_values': Dictionary showing example values for each parameter
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        info = manager.get_modifier_parameters('rename_columns')
-        print(info['usage'])
         """
         parameter_info = {
             'iso_date': {
@@ -165,28 +121,6 @@ class ModificationManager:
         """
         Apply a specified modifier to a DataFrame.
 
-        Parameters:
-        ----------
-        modifier_name : str
-            The name of the modifier to apply.
-        kwargs : dict
-            The parameters required by the modifier.
-
-        Returns:
-        -------
-        pd.DataFrame
-            The modified DataFrame.
-
-        Raises:
-        ------
-        ValueError
-            If the modifier is not found or if parameters are missing.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df, message = manager.modify('iso_date', df=df, date_col='Fecha_id')
-        print(message)
         """
         if modifier_name not in self.modifiers:
             raise ValueError(f"Modifier '{modifier_name}' not found.")
@@ -200,22 +134,6 @@ class ModificationManager:
         Convert a given date column in a DataFrame to ISO 8601 date format (YYYY-MM-DD).
         If the column is already formatted correctly, no changes are made.
         
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame containing the date column.
-        - date_col (str): Name of the date column to be converted.
-
-        Returns:
-        - pd.DataFrame: DataFrame with the date column converted to ISO 8601 date format.
-        - str: Message indicating if any changes were made or if the column was already formatted.
-
-        Raises:
-        - ValueError: If the column does not exist or contains invalid dates.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df, message = manager.iso_date(df, 'Fecha_id')
-        print(message)
         """
         if date_col not in df.columns:
             raise ValueError(f"Column '{date_col}' does not exist in the DataFrame.")
@@ -246,19 +164,6 @@ class ModificationManager:
         """
         Convert all string values in a specified column of a DataFrame to lowercase.
 
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame containing the column to be modified.
-        - column (str): Name of the column to convert to lowercase.
-
-        Returns:
-        - pd.DataFrame: DataFrame with the specified column converted to lowercase.
-
-        Raises:
-        - ValueError: If the column does not exist or is not of string type.
-
-        Usage:
-        -----
-        manager = ModificationManager()
         df = manager.lower_case(df, 'column_name')
         """
         if column not in df.columns:
@@ -275,16 +180,6 @@ class ModificationManager:
         """
         Remove all rows from a DataFrame that contain any missing (NaN) values.
 
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame from which to drop rows with missing values.
-
-        Returns:
-        - pd.DataFrame: DataFrame with rows containing missing values removed.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df = manager.drop_na(df)
         """
         df.dropna(inplace=True)
         return df
@@ -294,20 +189,6 @@ class ModificationManager:
         """
         Rename columns in a DataFrame according to a given dictionary mapping.
 
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame with columns to be renamed.
-        - column_rename_dict (dict): Dictionary mapping old column names to new column names.
-
-        Returns:
-        - pd.DataFrame: DataFrame with columns renamed according to the provided mapping.
-
-        Raises:
-        - ValueError: If any columns to be renamed do not exist in the DataFrame.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df = manager.rename_columns(df, {'old_name': 'new_name'})
         """
         missing_cols = [col for col in column_rename_dict.keys() if col not in df.columns]
         if missing_cols:
@@ -321,20 +202,6 @@ class ModificationManager:
         """
         Convert the data types of specified columns in a DataFrame.
 
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame containing columns to be converted.
-        - dtype_dict (dict): Dictionary mapping column names to target data types.
-
-        Returns:
-        - pd.DataFrame: DataFrame with specified columns converted to the target data types.
-
-        Raises:
-        - ValueError: If any columns do not exist in the DataFrame or if conversion fails.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df = manager.convert_dtypes(df, {'column_name': 'int'})
         """
         for col, dtype in dtype_dict.items():
             if col not in df.columns:
@@ -351,20 +218,6 @@ class ModificationManager:
         """
         Reorder the columns of a DataFrame according to a specified list of column names.
 
-        Parameters:
-        - df (pd.DataFrame): Input DataFrame with columns to be reordered.
-        - new_column_order (list): List specifying the new order of columns.
-
-        Returns:
-        - pd.DataFrame: DataFrame with columns reordered according to the specified list.
-
-        Raises:
-        - ValueError: If any specified columns do not exist in the DataFrame.
-
-        Usage:
-        -----
-        manager = ModificationManager()
-        df = manager.reorder_columns(df, ['col1', 'col2', 'col3'])
         """
         missing_cols = [col for col in new_column_order if col not in df.columns]
         if missing_cols:

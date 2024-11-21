@@ -1,198 +1,262 @@
-# TableManager Module Documentation
-
-The `TableManager` class provides a comprehensive interface for managing tables through API interactions. It handles table operations such as retrieval, addition, and deletion while managing authentication and maintaining consistent API communication.
+# TableManager Documentation
 
 ## Table of Contents
 - [Installation](#installation)
 - [Class Overview](#class-overview)
-- [Authentication](#authentication)
+- [Constructor](#constructor)
 - [Methods](#methods)
+  - [get_tables](#get_tables)
+  - [add_table](#add_table)
+  - [get_table](#get_table)
+  - [delete_tables](#delete_tables)
+  - [get_table_description](#get_table_description)
+  - [get_table_parameters](#get_table_parameters)
 - [Usage Examples](#usage-examples)
 - [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
 
 ## Installation
 
-The TableManager module requires the following dependencies:
 ```python
-requests
-pandas
-fake_useragent
+pip install semt_py
 ```
 
 ## Class Overview
 
-```python
-from .Auth_manager import AuthManager
+The `TableManager` class provides a comprehensive interface for managing tables through API interactions. It handles table operations such as retrieval, addition, and deletion while managing authentication and maintaining consistent API communication.
 
-class TableManager:
-    def __init__(self, base_url: str, Auth_manager: AuthManager):
-        # Initialize TableManager with base URL and authentication manager
+## Constructor
+
+```python
+def __init__(self, base_url: str, Auth_manager: AuthManager)
 ```
 
-The TableManager class is initialized with:
-- `base_url`: The base URL for the API endpoint
-- `Auth_manager`: An instance of AuthManager for handling authentication
+### Parameters:
+- `base_url` (str): The base URL for the API endpoint
+- `Auth_manager` (AuthManager): An instance of AuthManager for handling authentication
 
-## Authentication
+### Example:
+```python
+from semt_py import TableManager, AuthManager
 
-The TableManager uses token-based authentication handled through the AuthManager class. Each request includes:
-- Bearer token authentication
-- Random User-Agent headers
-- Origin and Referer headers matching the base URL
+auth_manager = AuthManager(
+    api_url="https://api.example.com",
+    username="your_username",
+    password="your_password"
+)
+
+table_manager = TableManager(
+    base_url="https://api.example.com",
+    Auth_manager=auth_manager
+)
+```
 
 ## Methods
 
-### get_tables(dataset_id: str, debug: bool = False) → pd.DataFrame
+### get_tables
+
+```python
+def get_tables(
+    self,
+    dataset_id: str,
+    debug: bool = False
+) -> pd.DataFrame
+```
 
 Retrieves all tables in a specified dataset.
 
-**Parameters:**
+#### Parameters:
 - `dataset_id` (str): The ID of the dataset to query
-- `debug` (bool, optional): Enable debug output. Defaults to False
+- `debug` (bool): Enable debug output
 
-**Returns:**
-- pandas DataFrame containing table information
+#### Returns:
+- pd.DataFrame: Contains table information
 
-**Example:**
+#### Example:
 ```python
-tables_df = table_manager.get_tables(dataset_id='dataset_123', debug=True)
+tables_df = table_manager.get_tables(
+    dataset_id='dataset_123',
+    debug=True
+)
+print(tables_df)
 ```
 
-### add_table(dataset_id: str, table_data: pd.DataFrame, table_name: str) → Tuple[Optional[str], str, Optional[Dict]]
+### add_table
+
+```python
+def add_table(
+    self,
+    dataset_id: str,
+    table_data: pd.DataFrame,
+    table_name: str
+) -> Tuple[Optional[str], str, Optional[Dict]]
+```
 
 Adds a new table to a dataset.
 
-**Parameters:**
+#### Parameters:
 - `dataset_id` (str): Target dataset ID
-- `table_data` (pd.DataFrame): Data to be added as a table
+- `table_data` (pd.DataFrame): Data to be added
 - `table_name` (str): Name for the new table
 
-**Returns:**
+#### Returns:
 - Tuple containing:
-  - table_id (Optional[str]): ID of the created table
-  - message (str): Operation status message
-  - response_data (Optional[Dict]): Complete API response
+  - table_id (Optional[str]): ID of created table
+  - message (str): Status message
+  - response_data (Optional[Dict]): API response
 
-**Example:**
+### get_table
+
 ```python
-table_id, message, response = table_manager.add_table(
+def get_table(
+    self,
+    dataset_id: str,
+    table_id: str
+) -> Optional[Dict[str, Any]]
+```
+
+Retrieves a specific table by ID.
+
+#### Parameters:
+- `dataset_id` (str): Dataset ID
+- `table_id` (str): Table ID to retrieve
+
+#### Returns:
+- Optional[Dict[str, Any]]: Table data or None
+
+### delete_tables
+
+```python
+def delete_tables(
+    self,
+    dataset_id: str,
+    table_ids: List[str]
+) -> Dict[str, Tuple[bool, str]]
+```
+
+Deletes multiple tables from a dataset.
+
+#### Parameters:
+- `dataset_id` (str): Dataset ID
+- `table_ids` (List[str]): Table IDs to delete
+
+#### Returns:
+- Dict[str, Tuple[bool, str]]: Results for each table
+
+### get_table_description
+
+```python
+def get_table_description(self) -> Dict[str, str]
+```
+
+Provides descriptions of all functions in the TableManager class.
+
+#### Parameters:
+- **None**
+
+#### Returns:
+Dict[str, str] A dictionary where keys are function names and values are descriptions.
+
+### get_table_parameters
+
+```python
+def get_table_parameters(self, function_name: str) -> List[str]
+```
+
+Provides the parameters required for a specific function in the TableManager class.
+
+#### Parameters:
+- `function_name` : The name of the function to get parameters for.
+
+#### Returns:
+List[str]: A list of parameter names required by the function.
+
+## Usage Examples
+
+### Basic Usage
+```python
+# Initialize manager
+table_manager = TableManager(base_url, auth_manager)
+
+# List tables
+tables_df = table_manager.get_tables('dataset_123')
+
+# Add new table
+data = pd.DataFrame({'column1': [1, 2, 3]})
+table_id, msg, response = table_manager.add_table(
     dataset_id='dataset_123',
-    table_data=df,
+    table_data=data,
     table_name='new_table'
 )
 ```
 
-### get_table(dataset_id: str, table_id: str) → Optional[Dict[str, Any]]
-
-Retrieves a specific table by ID.
-
-**Parameters:**
-- `dataset_id` (str): Dataset ID containing the table
-- `table_id` (str): ID of the table to retrieve
-
-**Returns:**
-- Dictionary containing table data or None if not found
-
-**Example:**
+### Advanced Usage
 ```python
-table_data = table_manager.get_table(
-    dataset_id='dataset_123',
-    table_id='table_456'
-)
-```
-
-### delete_tables(dataset_id: str, table_ids: List[str]) → Dict[str, Tuple[bool, str]]
-
-Deletes multiple tables from a dataset.
-
-**Parameters:**
-- `dataset_id` (str): Dataset ID containing the tables
-- `table_ids` (List[str]): List of table IDs to delete
-
-**Returns:**
-- Dictionary mapping table IDs to tuples of (success_status, message)
-
-**Example:**
-```python
+# Delete multiple tables
 results = table_manager.delete_tables(
     dataset_id='dataset_123',
     table_ids=['table_456', 'table_789']
 )
-```
 
-## Usage Examples
-
-### Basic Table Management
-
-```python
-# Initialize TableManager
-base_url = "https://api.example.com"
-auth_manager = AuthManager(api_credentials)
-table_manager = TableManager(base_url, auth_manager)
-
-# List all tables in a dataset
-tables_df = table_manager.get_tables('dataset_123')
-
-# Add a new table
-new_data = pd.DataFrame({'column1': [1, 2, 3]})
-table_id, msg, response = table_manager.add_table('dataset_123', new_data, 'new_table')
-
-# Retrieve specific table
-table_data = table_manager.get_table('dataset_123', table_id)
-
-# Delete tables
-results = table_manager.delete_tables('dataset_123', [table_id])
-```
-
-### Error Handling Example
-
-```python
-try:
-    tables_df = table_manager.get_tables(dataset_id='dataset_123')
-    if tables_df.empty:
-        print("No tables found or error occurred")
+# Process results
+for table_id, (success, message) in results.items():
+    if success:
+        print(f"Table {table_id} deleted successfully")
     else:
-        print(f"Found {len(tables_df)} tables")
-except Exception as e:
-    print(f"Error accessing tables: {str(e)}")
+        print(f"Failed to delete table {table_id}: {message}")
 ```
 
 ## Error Handling
 
-The TableManager implements comprehensive error handling:
-
-- Network errors: Caught and logged through RequestException
-- JSON parsing errors: Handled via JSONDecodeError
-- Authentication errors: Managed through the AuthManager
-- File operations: Protected with try/except blocks for IOError
-
-All errors are logged using the built-in logging system, with appropriate error messages returned to the caller.
-
-## Logging
-
-The TableManager uses Python's built-in logging system:
-
 ```python
-import logging
-logger = logging.getLogger(__name__)
+try:
+    # Get tables
+    tables_df = table_manager.get_tables(
+        dataset_id='dataset_123',
+        debug=True
+    )
+    
+    if tables_df.empty:
+        print("No tables found")
+    else:
+        print(f"Found {len(tables_df)} tables")
+        
+except requests.RequestException as e:
+    print(f"API request failed: {e}")
+except ValueError as e:
+    print(f"Invalid data: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
 ```
-
-Log messages include:
-- INFO: Successful operations
-- WARNING: Non-critical issues
-- ERROR: Operation failures and exceptions
 
 ## Best Practices
 
-1. Always check return values for None or empty DataFrames
-2. Use debug mode when troubleshooting API interactions
-3. Implement appropriate error handling in your code
-4. Monitor logging output for operation status
-5. Clean up resources after file operations
+### 1. **Authentication Management**
+   - Securely store credentials
+   - Implement token refresh
+   - Use environment variables
 
-## Security Considerations
+### 2. **Error Handling**
+   - Implement try-except blocks
+   - Enable debug mode during development
+   - Log errors appropriately
 
-- Credentials are managed through the AuthManager
-- Temporary files are properly cleaned up
-- API tokens are never logged
-- HTTPS is required for API communication
+### 3. **Data Management**
+   - Validate data before upload
+   - Handle large datasets in chunks
+   - Clean up temporary files
+
+### 4. **Performance Optimization**
+   - Cache results when appropriate
+   - Minimize API calls
+   - Use batch operations
+
+### 5. **Security**
+   - Validate input data
+   - Sanitize file names
+   - Handle sensitive data appropriately
+
+### 6. **Resource Management**
+   - Close file handles
+   - Delete temporary files
+   - Monitor memory usage

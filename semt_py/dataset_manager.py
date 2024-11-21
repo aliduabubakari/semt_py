@@ -5,11 +5,14 @@ from urllib.parse import urljoin
 from fake_useragent import UserAgent
 from typing import TYPE_CHECKING, List, Optional, Tuple, Dict, Any
 import logging
-from .Auth_manager import AuthManager
+import inspect
+from textwrap import dedent
+from .auth_manager import AuthManager
 
 class DatasetManager:
     """
     A class to manage datasets through API interactions.
+
     """
     def __init__(self, base_url, Auth_manager):
         self.base_url = base_url.rstrip('/') + '/'
@@ -27,88 +30,80 @@ class DatasetManager:
         """
         Retrieve the list of available dataset functions.
 
-        Returns:
-        -------
-        List[str]
-            A list of available dataset function names.
-
-        Usage:
-        -----
-        manager = DatasetManager(base_url, Auth_manager)
-        functions = manager.get_dataset_list()
-        print(functions)  # ['get_datasets', 'add_dataset', 'delete_dataset']
         """
         return list(self.available_functions.keys())
 
-    def get_dataset_description(self) -> Dict[str, Dict[str, str]]:
+    def get_dataset_description(self) -> Dict[str, Dict[str, Optional[str]]]:
         """
-        Provides detailed descriptions of all dataset functions.
-
-        Returns:
-        -------
-        Dict[str, Dict[str, str]]
-            A dictionary containing function information with keys:
-            - 'description': Brief description of the function
-            - 'returns': Description of what the function returns
-            - 'raises': Description of possible exceptions
-
-        Usage:
-        -----
-        manager = DatasetManager(base_url, Auth_manager)
-        descriptions = manager.get_dataset_description()
-        for func, info in descriptions.items():
-            print(f"\nFunction: {func}")
-            for key, value in info.items():
-                print(f"{key}: {value}")
+        Provides detailed descriptions of all dataset functions by inspecting
+        each function's docstring.
         """
-        return {
-            "get_datasets": {
-                "description": "Retrieves the list of datasets from the server",
-                "returns": "pandas DataFrame containing dataset information",
-                "raises": "RequestException if API call fails, ValueError if JSON decoding fails"
-            },
-            "add_dataset": {
-                "description": "Adds a new dataset to the server",
-                "returns": "Tuple of (success: bool, error_message: Optional[str])",
-                "raises": "ValueError if dataset_name is empty or data is invalid"
-            },
-            "delete_dataset": {
-                "description": "Deletes a specified dataset from the server",
-                "returns": "Boolean indicating success of deletion",
-                "raises": "ValueError if dataset_id is invalid or not found"
+        descriptions = {}
+        for func_name, func in self.available_functions.items():
+            # Initialize default structure
+            descriptions[func_name] = {
+                "description": None,
+                "returns": None,
+                "raises": None
             }
-        }
+            
+            # Get and clean docstring
+            func_doc = inspect.getdoc(func)
+            if not func_doc:
+                continue
+                
+            # Clean up indentation
+            func_doc = dedent(func_doc)
+            func_lines = func_doc.splitlines()
+            
+            current_section = None
+            description_lines = []
+            section_lines = []
+
+            for line in func_lines:
+                line = line.strip()
+                
+                # Check for section headers
+                if line.lower().startswith(("returns:", "raises:", "parameters:", "usage:")):
+                    # Save previous section content if any
+                    if current_section and section_lines:
+                        descriptions[func_name][current_section] = " ".join(section_lines).strip()
+                        section_lines = []
+                    
+                    # Set new section
+                    current_section = line.lower().split(':')[0]
+                    continue
+                    
+                # Handle content based on current section
+                if current_section in ["returns", "raises"]:
+                    if line and not line.startswith('-'):  # Skip list markers
+                        section_lines.append(line)
+                elif not current_section and line:
+                    description_lines.append(line)
+            
+            # Save last section if any
+            if current_section and section_lines:
+                descriptions[func_name][current_section] = " ".join(section_lines).strip()
+                
+            # Save description
+            if description_lines:
+                descriptions[func_name]["description"] = " ".join(description_lines).strip()
+
+        return descriptions
 
     def get_dataset_parameters(self, function_name: str) -> Dict[str, Any]:
         """
         Provides detailed parameter information for a specific dataset function.
 
-        Parameters:
-        ----------
-        function_name : str
-            The name of the function to get parameters for.
-
-        Returns:
-        -------
-        Dict[str, Any]
-            A dictionary containing:
-            - 'parameters': Dictionary of parameter names and their types
-            - 'usage': String showing example usage of the function
-            - 'example_values': Dictionary showing example values for each parameter
-
-        Usage:
-        -----
-        manager = DatasetManager(base_url, Auth_manager)
-        info = manager.get_dataset_parameters('get_datasets')
-        print(info['usage'])
+        
         """
         parameter_info = {
             'get_datasets': {
                 'parameters': {'debug': 'bool'},
                 'usage': """
-manager = DatasetManager(base_url, Auth_manager)
-datasets_df = manager.get_datasets(debug=True)
-print(datasets_df)""",
+                    manager = DatasetManager(base_url, Auth_manager)
+                    datasets_df = manager.get_datasets(debug=True)
+                    print(datasets_df)""",
                 'example_values': {'debug': 'True'}
             },
             'add_dataset': {
@@ -117,28 +112,28 @@ print(datasets_df)""",
                     'data': 'pd.DataFrame'
                 },
                 'usage': """
-manager = DatasetManager(base_url, Auth_manager)
-data = pd.DataFrame({'column1': [1, 2, 3], 'column2': ['a', 'b', 'c']})
-success, error_msg = manager.add_dataset(dataset_name='new_dataset', data=data)
-if success:
-    print("Dataset added successfully")
-else:
-    print(f"Failed to add dataset: {error_msg}")""",
-                'example_values': {
+            manager = DatasetManager(base_url, Auth_manager)
+            data = pd.DataFrame({'column1': [1, 2, 3], 'column2': ['a', 'b', 'c']})
+            success, error_msg = manager.add_dataset(dataset_name='new_dataset', data=data)
+            if success:
+                print("Dataset added successfully")
+            else:
+                print(f"Failed to add dataset: {error_msg}")""",
+                            'example_values': {
                     'dataset_name': "'my_dataset'",
                     'data': "pd.DataFrame({'column1': [1, 2, 3]})"
                 }
             },
             'delete_dataset': {
                 'parameters': {'dataset_id': 'str'},
-                'usage': """
-manager = DatasetManager(base_url, Auth_manager)
-if manager.delete_dataset(dataset_id='dataset_123'):
-    print("Dataset deleted successfully")
-else:
-    print("Failed to delete dataset")""",
-                'example_values': {'dataset_id': "'dataset_123'"}
-            }
+                            'usage': """
+            manager = DatasetManager(base_url, Auth_manager)
+            if manager.delete_dataset(dataset_id='dataset_123'):
+                print("Dataset deleted successfully")
+            else:
+                print("Failed to delete dataset")""",
+                            'example_values': {'dataset_id': "'dataset_123'"}
+                        }
         }
         
         dataset_info = parameter_info.get(function_name, "Function not found.")
@@ -206,31 +201,6 @@ else:
         This method sends a GET request to the dataset API endpoint to retrieve
         a list of available datasets. The response is converted into a pandas
         DataFrame for easy manipulation and analysis.
-
-        Args:
-        ----
-        debug : bool
-            If True, prints additional information like metadata and status code.
-
-        Returns:
-        -------
-        pd.DataFrame
-            A DataFrame containing the datasets. If the request fails or the
-            response structure is unexpected, an empty DataFrame is returned.
-
-        Usage:
-        -----
-        # Initialize the DatasetManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        dataset_manager = DatasetManager(base_url, Auth_manager)
-
-        # Retrieve the list of datasets
-        try:
-            datasets_df = dataset_manager.get_dataset_list(debug=True)
-            print(datasets_df)
-        except Exception as e:
-            print(f"Error retrieving dataset list: {e}")
         """
         url = urljoin(self.api_url, 'dataset')
         headers = self._get_headers()

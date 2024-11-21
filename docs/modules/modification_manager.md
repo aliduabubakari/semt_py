@@ -1,204 +1,369 @@
-# ModificationManager
+# ModificationManager Documentation
 
-The `ModificationManager` class provides a flexible framework for applying various modifications to pandas DataFrames. It includes methods for converting date formats, changing data types, manipulating text, and reorganizing DataFrame structures.
+## Table of Contents
+- [Installation](#installation)
+- [Class Overview](#class-overview)
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get_modifier_list](#get_modifier_list)
+  - [get_modifier_description](#get_modifier_description)
+  - [get_modifier_parameters](#get_modifier_parameters)
+  - [modify](#modify)
+  - [iso_date](#iso_date)
+  - [lower_case](#lower_case)
+  - [drop_na](#drop_na)
+  - [rename_columns](#rename_columns)
+  - [convert_dtypes](#convert_dtypes)
+  - [reorder_columns](#reorder_columns)
+- [Usage Examples](#usage-examples)
+- [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
+- [How to Add a New Modification Technique](#how-to-add-a-new-modification-technique)
+  - [Step 1: Define the Modifier Method](#step-1-define-the-modifier-method)
+  - [Step 2: Register the Modifier](#step-2-register-the-modifier)
+  - [Step 3: Update Documentation](#step-3-update-documentation)
+  - [Step 4: Test Your Modifier](#step-4-test-your-modifier)
 
 ## Installation
 
 ```python
-pip install pandas dateutil
+pip install semt_py
 ```
 
-## Quick Start
+## Class Overview
+
+The `ModificationManager` class provides a comprehensive framework for applying various modifications to pandas DataFrames. It includes methods for converting date formats, changing data types, manipulating text, and reorganizing DataFrame structures.
+
+## Constructor
 
 ```python
-from modification_manager import ModificationManager
+def __init__(self)
+```
 
-# Initialize the manager
+Initializes the ModificationManager with available modifiers.
+
+### Example:
+```python
+from semt_py import ModificationManager
+
+modification_manager = ModificationManager()
+```
+
+## Methods
+
+### get_modifier_list
+
+```python
+def get_modifier_list(self) -> List[str]
+```
+
+Returns a list of available modifier names.
+
+#### Returns:
+- List[str]: Available modifier names
+
+#### Example:
+```python
+modifiers = modification_manager.get_modifier_list()
+print(modifiers)  # ['iso_date', 'lower_case', 'drop_na', ...]
+```
+
+### get_modifier_description
+
+```python
+def get_modifier_description(self, modifier_name: str) -> str
+```
+
+Returns the description of a specific modifier.
+
+#### Parameters:
+- `modifier_name` (str): Name of the modifier
+
+#### Returns:
+- str: Description of the modifier
+
+#### Example:
+```python
+description = modification_manager.get_modifier_description('iso_date')
+print(description)
+```
+
+### get_modifier_parameters
+
+Retrieves the parameters required for a specific modifier along with usage example.
+
+```python
+manager = ModificationManager()
+modifier_list = manager.get_modifier_parameters('iso_date')
+print(modifier_list)
+```
+
+### modify
+
+```python
+def modify(self, modifier_name: str, **kwargs) -> Union[pd.DataFrame, Tuple[pd.DataFrame, str]]
+```
+
+Applies a specified modifier to a DataFrame.
+
+#### Parameters:
+- `modifier_name` (str): Name of the modifier to apply
+- `**kwargs`: Arguments required by the specific modifier
+
+#### Returns:
+- Modified DataFrame or tuple of (DataFrame, message)
+
+#### Example:
+```python
+df, message = modification_manager.modify('iso_date', df=df, date_col='date')
+```
+
+### iso_date
+
+```python
+@staticmethod
+def iso_date(df: pd.DataFrame, date_col: str) -> Tuple[pd.DataFrame, str]
+```
+
+Converts date column to ISO 8601 format.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame
+- `date_col` (str): Name of date column
+
+#### Returns:
+- Tuple[pd.DataFrame, str]: Modified DataFrame and status message
+
+### lower_case
+
+```python
+@staticmethod
+def lower_case(df: pd.DataFrame, column: str) -> pd.DataFrame
+```
+
+Converts string values to lowercase.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame
+- `column` (str): Column to convert
+
+#### Returns:
+- pd.DataFrame: Modified DataFrame
+
+### drop_na
+```python
+@staticmethod
+def drop_na(df: pd.DataFrame) -> pd.DataFrame
+```
+
+Remove all rows from a DataFrame that contain any missing (NaN) values.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame from which to drop rows with missing values.
+
+#### Returns:
+- pd.DataFrame: DataFrame with rows containing missing values removed.
+
+### rename_columns
+```python
+@staticmethod
+def rename_columns(df: pd.DataFrame, column_rename_dict: dict) -> pd.DataFrame
+```
+
+Rename columns in a DataFrame according to a given dictionary mapping.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame with columns to be renamed.
+- `column_rename_dict` (dict): Dictionary mapping old column names to new column names.
+
+#### Returns:
+- pd.DataFrame: DataFrame with columns renamed according to the provided mapping.
+
+#### Raises:
+- ValueError: If any columns to be renamed do not exist in the DataFrame.
+
+### convert_dtypes
+```python
+@staticmethod
+def convert_dtypes(df: pd.DataFrame, dtype_dict: dict) -> pd.DataFrame
+```
+
+Convert the data types of specified columns in a DataFrame.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame containing columns to be converted.
+
+#### Returns:
+- pd.DataFrame: DataFrame with specified columns converted to the target data types.
+
+### reorder_columns
+```python
+@staticmethod
+def reorder_columns(df: pd.DataFrame, new_column_order: list) -> pd.DataFrame
+```
+
+Reorder the columns of a DataFrame according to a specified list of column names.
+
+#### Parameters:
+- `df` (pd.DataFrame): Input DataFrame with columns to be reordered.
+- `new_column_order` (list): List of column names in the desired order.
+
+#### Returns:
+- pd.DataFrame: DataFrame with columns reordered according to the specified list.
+
+## Usage Examples
+
+### Basic Usage
+```python
+from semt_py import ModificationManager
+# Initialize manager
 manager = ModificationManager()
 
-# Get available modifiers
-modifiers = manager.get_modifier_list()
+# Convert dates to ISO format
+df, message = manager.modify('iso_date', 
+                           df=df, 
+                           date_col='date_column')
 
-# Apply a modification
-df, message = manager.modify('iso_date', df=your_dataframe, date_col='date_column')
+# Convert text to lowercase
+df = manager.modify('lower_case', 
+                   df=df, 
+                   column='text_column')
 ```
 
-## Available Modifiers
-
-### 1. ISO Date Conversion (`iso_date`)
-Converts date columns to ISO 8601 format (YYYY-MM-DD).
-
+### Advanced Usage
 ```python
-df, message = manager.iso_date(df, date_col='date_column')
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-- `date_col` (str): Name of the date column to convert
-
-**Returns:**
-- Modified DataFrame
-- Status message indicating success or current format
-
-### 2. Lowercase Conversion (`lower_case`)
-Converts all string values in a specified column to lowercase.
-
-```python
-df = manager.lower_case(df, column='text_column')
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-- `column` (str): Name of the column to convert
-
-**Returns:**
-- Modified DataFrame
-
-### 3. Drop NA Values (`drop_na`)
-Removes rows containing any missing values.
-
-```python
-df = manager.drop_na(df)
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-
-**Returns:**
-- Cleaned DataFrame
-
-### 4. Rename Columns (`rename_columns`)
-Renames DataFrame columns according to a provided mapping.
-
-```python
-df = manager.rename_columns(df, {'old_name': 'new_name'})
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-- `column_rename_dict` (dict): Mapping of old column names to new names
-
-**Returns:**
-- DataFrame with renamed columns
-
-### 5. Convert Data Types (`convert_dtypes`)
-Converts column data types according to a specified mapping.
-
-```python
-df = manager.convert_dtypes(df, {'column_name': 'int64'})
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-- `dtype_dict` (dict): Mapping of column names to desired data types
-
-**Returns:**
-- DataFrame with converted data types
-
-### 6. Reorder Columns (`reorder_columns`)
-Reorders DataFrame columns according to a specified list.
-
-```python
-df = manager.reorder_columns(df, ['col1', 'col2', 'col3'])
-```
-
-**Parameters:**
-- `df` (pandas.DataFrame): Input DataFrame
-- `new_column_order` (list): List of column names in desired order
-
-**Returns:**
-- DataFrame with reordered columns
-
-## Helper Methods
-
-### Get Modifier List
-Retrieves all available modifiers.
-
-```python
-modifiers = manager.get_modifier_list()
-```
-
-### Get Modifier Description
-Retrieves the description of a specific modifier.
-
-```python
-description = manager.get_modifier_description('iso_date')
-```
-
-### Get Modifier Parameters
-Retrieves detailed information about a modifier's parameters and usage.
-
-```python
-info = manager.get_modifier_parameters('rename_columns')
-print(info)  # Displays formatted information about parameters and usage
+# Chain multiple modifications
+df, _ = manager.modify('iso_date', df=df, date_col='date')
+df = manager.modify('lower_case', df=df, column='text')
+df = manager.modify('convert_dtypes', 
+                   df=df, 
+                   dtype_dict={'value': 'int64'})
+df = manager.modify('reorder_columns', 
+                   df=df, 
+                   new_column_order=['id', 'date', 'text'])
 ```
 
 ## Error Handling
 
-The ModificationManager includes comprehensive error handling:
-
-- Raises `ValueError` when:
-  - Specified columns don't exist in the DataFrame
-  - Date conversion fails due to invalid formats
-  - Data type conversion fails
-  - Invalid modifier names are provided
-  - Required parameters are missing
-
-## Examples
-
-### Complete Usage Example
-
 ```python
-import pandas as pd
-from modification_manager import ModificationManager
-
-# Create a sample DataFrame
-df = pd.DataFrame({
-    'date': ['2023/01/01', '2023/01/02'],
-    'text': ['Sample TEXT', 'More TEXT'],
-    'value': ['1', '2']
-})
-
-# Initialize the manager
-manager = ModificationManager()
-
-# Apply multiple modifications
-df, _ = manager.modify('iso_date', df=df, date_col='date')
-df = manager.modify('lower_case', df=df, column='text')
-df = manager.modify('convert_dtypes', df=df, dtype_dict={'value': 'int64'})
-
-# Reorder columns
-df = manager.modify('reorder_columns', df=df, new_column_order=['value', 'date', 'text'])
+try:
+    df, message = manager.modify('iso_date', 
+                               df=df, 
+                               date_col='date')
+except ValueError as e:
+    print(f"Date conversion error: {e}")
+except KeyError as e:
+    print(f"Column not found: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
 ```
 
 ## Best Practices
 
-1. **Date Handling**
-   - Always validate date formats before conversion
-   - Use ISO date modifier for standardization
+#### 1. **Data Validation**
+   - Always validate input data types
+   - Check column existence before modifications
+   - Verify date formats before conversion
 
-2. **Data Type Conversion**
-   - Verify data consistency before type conversion
-   - Handle missing values appropriately
+#### 2. **Error Handling**
+   - Implement try-except blocks for each modification
+   - Validate parameters before processing
+   - Handle missing or invalid data appropriately
 
-3. **Column Management**
-   - Back up DataFrame before applying modifications
-   - Verify column existence before operations
+#### 3. **Performance Optimization**
+   - Chain modifications efficiently
+   - Use appropriate data types
+   - Handle large datasets in chunks
 
-4. **Error Handling**
-   - Implement try-except blocks for modification chains
-   - Validate input parameters before processing
+#### 4. **Data Integrity**
+   - Create backups before modifications
+   - Verify results after each modification
+   - Maintain data consistency
 
-## Contributing
+#### 5. **Code Organization**
+   - Use meaningful variable names
+   - Document modifications clearly
+   - Follow consistent coding patterns
 
-When adding new modifiers:
+## How to Add a New Modification Technique
 
-1. Add the modifier function to the class
-2. Update the `modifiers` dictionary in `__init__`
-3. Add appropriate documentation
-4. Include error handling
-5. Update the modifier description and parameters information
+The ModificationManager class is designed to be extensible, allowing developers to add new modification techniques easily. Follow these steps to add a new modifier:
 
-## License
+### Step 1: Define the Modifier Method
 
-[Include appropriate license information here]
+1. **Create a Static Method**: Define a new static method in the ModificationManager class. This method should take a `pandas.DataFrame` as its first parameter, followed by any additional parameters required for the modification.
+
+2. **Implement Logic**: Implement the logic for your modification within this method. Ensure that it returns a modified DataFrame and, if applicable, a status message.
+
+3. **Error Handling**: Include appropriate error handling to manage invalid inputs or operations.
+
+Example:
+```python
+@staticmethod
+def new_modifier(df: pd.DataFrame, param1: str, param2: int) -> pd.DataFrame:
+   """
+   Brief description of what the modifier does.
+
+   Parameters:
+   - df (pd.DataFrame): Input DataFrame.
+   - param1 (str): Description of the first parameter.
+   - param2 (int): Description of the second parameter.
+
+   Returns:
+   - pd.DataFrame: Modified DataFrame.
+
+   Raises:
+   - ValueError: If any parameter is invalid.
+
+   Usage:
+   -----
+   manager = ModificationManager()
+   df = manager.new_modifier(df, 'value1', 10)
+   """
+   # Implement the modification logic here
+   return df
+```
+### Step 2: Register the Modifier
+
+**Add to Modifiers Dictionary**: In the __init__ method of the ModificationManager, add your new modifier to the self.modifiers dictionary. Use a descriptive key that represents the modifier's functionality.
+
+Example:
+```python
+def __init__(self):
+    self.modifiers = {
+        'iso_date': self.iso_date,
+        'lower_case': self.lower_case,
+        'drop_na': self.drop_na,
+        'rename_columns': self.rename_columns,
+        'convert_dtypes': self.convert_dtypes,
+        'reorder_columns': self.reorder_columns,
+        'new_modifier': self.new_modifier  # Add your new modifier here
+    }
+```
+
+### Step 3: Update Documentation
+1. **Add Description**: Update the get_modifier_description method to include a description of your new modifier.
+2. **Add Parameters**: Update the get_modifier_parameters method to include the parameters required by your new modifier, along with usage examples.
+
+Example:
+```python
+def get_modifier_description(self, modifier_name):
+    descriptions = {
+        'iso_date': "Convert a date column to ISO 8601 format (YYYY-MM-DD).",
+        'lower_case': "Convert all string values in a column to lowercase.",
+        'drop_na': "Remove rows with missing values.",
+        'rename_columns': "Rename columns according to a given mapping.",
+        'convert_dtypes': "Convert column data types according to a given mapping.",
+        'reorder_columns': "Reorder columns according to a specified order.",
+        'new_modifier': "Brief description of the new modifier."
+    }
+    return descriptions.get(modifier_name, "Modifier not found.")
+```
+
+### Step 4: Test Your Modifier
+
+1. **Unit Tests**: Write unit tests to ensure your modifier works as expected. Test various scenarios, including edge cases and invalid inputs.
+
+1. **Integration Tests**: Verify that your modifier integrates well with existing modifiers and does not introduce any regressions.
+
+By following these steps, you can effectively contribute new modification techniques to the ModificationManager class, enhancing its functionality and utility for other developers.

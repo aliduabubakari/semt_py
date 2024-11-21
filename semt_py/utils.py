@@ -8,36 +8,13 @@ import json
 from urllib.parse import urljoin
 from typing import Dict, Tuple, List, Optional
 #from .Auth_manager import TokenManager
-from .Auth_manager import AuthManager
+from .auth_manager import AuthManager
 from IPython.core.display import HTML
 
 class Utility:
     """
     A utility class providing various helper functions for API interactions,
     class exploration, and data display.
-
-    This class includes methods for exploring class methods, exploring submodules,
-    pushing data to a backend API, and displaying JSON-based tables in HTML format.
-
-    Attributes:
-    ----------
-    api_url : str
-        The base URL for the API.
-    Auth_manager : TokenManager
-        An instance of TokenManager to handle authentication.
-    headers : dict
-        The headers for API requests, including authorization.
-
-    Methods:
-    -------
-    explore_class_methods(cls) -> List[str]
-        Explore all methods of a class, filtering for user-defined functions only.
-    explore_submodules(submodules: List) -> Dict[str, Dict[str, List[str]]]
-        Explore all classes in the given submodules and list their functions.
-    push_to_backend(dataset_id: str, table_id: str, payload: Dict, debug: bool = False) -> Tuple[str, Dict]
-        Pushes the payload data to the backend API.
-    display_json_table(json_table, number_of_rows=None, from_row=0, labels=None) -> HTML
-        Displays a formatted HTML table from a JSON-based table structure with optional metadata.
     """
     def __init__(self, api_url: str, Auth_manager):
         """
@@ -64,11 +41,6 @@ class Utility:
     def get_utils_list(self):
         """
         Get a list of all available utility methods.
-    
-        Returns:
-        -------
-        List[str]
-            List of utility method names.
         """
         return [
             'explore_class_methods',
@@ -85,16 +57,6 @@ class Utility:
     def get_utils_description(self, util_name: str) -> str:
         """
         Get the description of a specific utility method.
-    
-        Parameters:
-        ----------
-        util_name : str
-            Name of the utility method.
-    
-        Returns:
-        -------
-        str
-            Description of the utility method.
         """
         descriptions = {
             'explore_class_methods': "Explore all methods of a class, filtering for user-defined functions only.",
@@ -112,16 +74,6 @@ class Utility:
     def get_utils_parameters(self, util_name: str) -> str:
         """
         Get detailed parameter information for a specific utility method.
-    
-        Parameters:
-        ----------
-        util_name : str
-            Name of the utility method.
-    
-        Returns:
-        -------
-        str
-            Formatted string containing parameter information and usage examples.
         """
         parameter_info = {
             'explore_class_methods': {
@@ -254,22 +206,6 @@ class Utility:
     def explore_class_methods(cls) -> List[str]:
         """
         Explore all methods of a class, filtering for user-defined functions only.
-
-        Parameters:
-        ----------
-        cls : class
-            The class to explore.
-
-        Returns:
-        -------
-        List[str]
-            A list of method names defined in the class.
-
-        Usage:
-        -----
-        # Explore methods of a class
-        methods = Utility.explore_class_methods(SomeClass)
-        print(methods)
         """
         # List all methods defined in the class
         return [name for name, func in inspect.getmembers(cls, inspect.isfunction)]
@@ -279,29 +215,6 @@ class Utility:
         """
         Explore all classes in the given submodules and list their functions.
 
-        Parameters:
-        ----------
-        submodules : List
-            A list of submodule objects to explore.
-
-        Returns:
-        -------
-        Dict[str, Dict[str, List[str]]]
-            A dictionary with the structure:
-            {
-                'module_name': {
-                    'ClassName1': [method1, method2],
-                    'ClassName2': [method1, method2]
-                },
-                ...
-            }
-
-        Usage:
-        -----
-        # Explore submodules
-        submodules = [module1, module2]
-        result = Utility.explore_submodules(submodules)
-        print(result)
         """
         result = {}
 
@@ -330,27 +243,6 @@ class Utility:
         """
         Pushes the payload data to the backend API.
 
-        Parameters:
-        ----------
-        dataset_id : str
-            ID of the dataset.
-        table_id : str
-            ID of the table.
-        payload : Dict
-            The payload to be sent to the backend.
-        debug : bool
-            Flag to enable logging.
-
-        Returns:
-        -------
-        Tuple[str, Dict]
-            A tuple containing a success message and the payload.
-
-        Usage:
-        -----
-        # Push data to backend
-        success_message, payload = utility.push_to_backend('dataset_id', 'table_id', payload, debug=True)
-        print(success_message)
         """
         def send_request(data: Dict, url: str) -> requests.Response:
             try:
@@ -391,12 +283,6 @@ class Utility:
     def download_csv(self, dataset_id: str, table_id: str, output_file: str = "downloaded_data.csv") -> str:
         """
         Downloads a CSV file from the backend and saves it locally.
-        Args:
-            dataset_id (str): The ID of the dataset as a string.
-            table_id (str): The ID of the table as a string.
-            output_file (str): The name of the file to save the CSV data to. Defaults to "downloaded_data.csv".
-        Returns:
-            str: The path to the downloaded CSV file.
         """
         endpoint = f"/api/dataset/{dataset_id}/table/{table_id}/export"
         params = {"format": "csv"}
@@ -415,14 +301,6 @@ class Utility:
     def download_json(self, dataset_id: str, table_id: str, output_file: str = "downloaded_data.json") -> str:
         """
         Downloads a JSON file in W3C format from the backend and saves it locally.
-
-        Args:
-            dataset_id (str): The ID of the dataset as a string.
-            table_id (str): The ID of the table as a string.
-            output_file (str): The name of the file to save the JSON data to. Defaults to "downloaded_data.json".
-
-        Returns:
-            str: The path to the downloaded JSON file.
         """
         endpoint = f"/api/dataset/{dataset_id}/table/{table_id}/export"
         params = {"format": "w3c"}
@@ -446,12 +324,6 @@ class Utility:
     def parse_json(self, json_data: List[Dict]) -> pd.DataFrame:
         """
         Parses the W3C JSON format into a pandas DataFrame.
-
-        Args:
-            json_data (List[Dict]): The W3C JSON data.
-
-        Returns:
-            pd.DataFrame: A DataFrame containing the parsed data.
         """
         # Extract column names from the first item (metadata)
         columns = [key for key in json_data[0].keys() if key.startswith('th')]
@@ -521,57 +393,6 @@ class Utility:
     def display_json_table(json_table, number_of_rows=None, from_row=0, labels=None):
         """
         Displays a formatted HTML table from a JSON-based table structure with optional metadata.
-
-        Parameters:
-        -----------
-        json_table : dict
-            The JSON structure containing the table data. It must have two main keys:
-            - 'columns': A dictionary where each key is a column label and the value is metadata.
-            - 'rows': A dictionary where each key is a row identifier (e.g., 'r0', 'r1') and the value contains
-            cell data for that row under the 'cells' key.
-
-        number_of_rows : int, optional
-            The number of rows to display starting from `from_row`. If not provided, all rows are displayed by default.
-            
-        from_row : int, optional
-            The row index to start displaying from (default is 0).
-
-        labels : list of str, optional
-            A list of column labels to display. If not provided, all columns from `json_table['columns']` are used.
-
-        Returns:
-        --------
-        IPython.core.display.HTML
-            An HTML-formatted table as a string with structured metadata rendered, ready for display within Jupyter or any environment that supports HTML rendering.
-
-        Behavior:
-        ---------
-        - Extracts the relevant rows and columns from the input `json_table`.
-        - Displays metadata (if present) in each cell by structuring it in HTML format.
-        - If metadata exists for a column, a new column is created (`<column>_metadata`) containing a formatted string of metadata.
-        - Displays the table using `pandas.DataFrame.to_html` with HTML styling for better readability (auto-resizing, word wrapping).
-        - If no rows or labels are provided, defaults to showing all rows and columns.
-
-        Notes:
-        ------
-        - This function is useful when dealing with tables that have associated metadata in each cell. 
-        - HTML rendering makes it easier to visualize the structured data, especially when working in environments like Jupyter notebooks.
-        - Metadata for each cell, if present, includes fields like `ID`, `Name`, `Score`, `Match`, and `Type` where available, with clickable URLs where applicable.
-
-        Example:
-        --------
-        json_table = {
-            'columns': {
-                'Name': {}, 'Age': {}, 'Occupation': {}
-            },
-            'rows': {
-                'r0': {'cells': {'Name': {'label': 'Alice', 'metadata': [{'id': 1, 'name': 'Alice Smith', 'score': 98}]}}, 'Age': {'label': '29'}, 'Occupation': {'label': 'Engineer'}},
-                'r1': {'cells': {'Name': {'label': 'Bob', 'metadata': [{'id': 2, 'name': 'Bob Lee', 'score': 85}]}}, 'Age': {'label': '35'}, 'Occupation': {'label': 'Doctor'}}
-            }
-        }
-
-        display_json_table(json_table, number_of_rows=2, labels=['Name', 'Occupation'])
-
     """
         # Set default number_of_rows if not provided
         if number_of_rows is None:

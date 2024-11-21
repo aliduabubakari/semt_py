@@ -7,7 +7,7 @@ This guide will walk you through the basic usage of SemT_py, demonstrating how t
 First, import the necessary modules and set up your credentials:
 
 ```python
-from semt_py.Auth_manager import AuthManager
+from semt_py.auth_manager import AuthManager
 from semt_py.dataset_manager import DatasetManager
 from semt_py.table_manager import TableManager
 from semt_py.reconciliation_manager import ReconciliationManager

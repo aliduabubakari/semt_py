@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from urllib.parse import urljoin
 from fake_useragent import UserAgent
-from .Auth_manager import AuthManager
+from .auth_manager import AuthManager
 from typing import TYPE_CHECKING, List, Optional, Tuple, Dict, Any
 import logging
 import tempfile
@@ -14,37 +14,6 @@ from requests.exceptions import RequestException, JSONDecodeError
 class TableManager:
     """
     A class to manage tables through API interactions.
-
-    This class provides methods to interact with a table API, allowing users
-    to retrieve lists of tables and perform other table-related operations.
-    It handles authentication via a token manager and uses a random user agent
-    for requests.
-
-    Attributes:
-    ----------
-    base_url : str
-        The base URL for the API.
-    Auth_manager : TokenManager
-        An instance of TokenManager to handle authentication.
-    user_agent : UserAgent
-        An instance of UserAgent to generate random user agents for requests.
-    logger : logging.Logger
-        A logger for logging messages and errors.
-
-    Methods:
-    -------
-    get_tables(dataset_id: str, debug: bool = False) -> pd.DataFrame
-        Retrieves and lists all tables in a specific dataset.
-    add_table(dataset_id: str, table_data: pd.DataFrame, table_name: str) -> Tuple[Optional[str], str, Optional[Dict[str, Any]]]
-        Adds a table to a specific dataset and processes the result.
-    get_table(dataset_id: str, table_id: str) -> Optional[Dict[str, Any]]
-        Retrieves a table by its ID from a specific dataset.
-    delete_tables(dataset_id: str, table_ids: List[str]) -> Dict[str, Tuple[bool, str]]
-        Deletes multiple tables from a specific dataset.
-    get_table_description() -> Dict[str, str]
-        Provides descriptions of all functions in the TableManager class.
-    get_table_parameters(function_name: str) -> List[str]
-        Provides the parameters required for a specific function in the TableManager class.
     """
 
     def __init__(self, base_url, Auth_manager):
@@ -79,20 +48,6 @@ class TableManager:
         """
         Provides descriptions of all functions in the TableManager class.
 
-        Returns:
-        -------
-        Dict[str, str]
-            A dictionary where keys are function names and values are descriptions.
-
-        Usage:
-        -----
-        # Initialize the TableManager
-        table_manager = TableManager(base_url, Auth_manager)
-
-        # Get descriptions of all functions
-        descriptions = table_manager.get_table_description()
-        for func, desc in descriptions.items():
-            print(f"{func}: {desc}")
         """
         return {
             "get_tables": "Retrieves and lists all tables in a specific dataset.",
@@ -101,59 +56,9 @@ class TableManager:
             "delete_tables": "Deletes multiple tables from a specific dataset."
         }
 
-    def get_table_parameters(self, function_name: str) -> List[str]:
-        """
-        Provides the parameters required for a specific function in the TableManager class.
-
-        Args:
-        ----
-        function_name : str
-            The name of the function to get parameters for.
-
-        Returns:
-        -------
-        List[str]
-            A list of parameter names required by the function.
-
-        Usage:
-        -----
-        # Initialize the TableManager
-        table_manager = TableManager(base_url, Auth_manager)
-
-        # Get parameters for a specific function
-        parameters = table_manager.get_table_parameters('get_table_list')
-        print(parameters)
-        """
-        parameters = {
-            "get_table_list": ["dataset_id", "debug"],
-            "add_table": ["dataset_id", "table_data", "table_name"],
-            "get_table": ["dataset_id", "table_id"],
-            "delete_tables": ["dataset_id", "table_ids"]
-        }
-        return parameters.get(function_name, [])
-
     def get_table_parameters(self, function_name: str) -> str:
         """
         Provides detailed parameter information for a specific function in the TableManager class.
-
-        Args:
-        ----
-        function_name : str
-            The name of the function to get parameters for.
-
-        Returns:
-        -------
-        str
-            A formatted string with readable output of parameter information.
-
-        Usage:
-        -----
-        # Initialize the TableManager
-        table_manager = TableManager(base_url, Auth_manager)
-
-        # Get parameters for a specific function
-        parameters_info = table_manager.get_table_parameters('get_tables')
-        print(parameters_info)
         """
         parameter_info = {
             'get_tables': {
@@ -241,45 +146,6 @@ for table_id, (success, message) in results.items():
         """
         Retrieve and list all tables in a specific dataset.
 
-        This method sends a GET request to the dataset API endpoint to retrieve
-        a list of tables within a specified dataset. The response is converted
-        into a pandas DataFrame for easy manipulation and analysis.
-
-        Args:
-        ----
-        dataset_id : str
-            The ID of the dataset.
-        debug : bool
-            If True, prints additional information like metadata and status code.
-
-        Returns:
-        -------
-        pd.DataFrame
-            A DataFrame containing the tables in the dataset. If the request
-            fails or the response structure is unexpected, an empty DataFrame
-            is returned.
-
-        Raises:
-        ------
-        RequestException
-            If the request to the server fails.
-        ValueError
-            If the response cannot be decoded as JSON.
-
-        Usage:
-        -----
-        # Initialize the DatasetManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        dataset_manager = DatasetManager(base_url, Auth_manager)
-
-        # Retrieve and list tables in a dataset
-        dataset_id = "your_dataset_id"  # Replace with the actual dataset ID
-        try:
-            tables_df = table_manager.get_tables(dataset_id, debug=True)
-            print(tables_df)
-        except Exception as e:
-            print(f"Error listing tables in dataset: {e}")
         """
         url = f"{self.api_url}dataset/{dataset_id}/table"
         headers = self._get_headers()
@@ -325,42 +191,6 @@ for table_id, (success, message) in results.items():
         This method uploads a DataFrame as a CSV file to the specified dataset
         and processes the API response to extract the table ID and other details.
 
-        Args:
-        ----
-        dataset_id : str
-            The ID of the dataset.
-        table_data : pd.DataFrame
-            The table data to be added.
-        table_name : str
-            The name of the table to be added.
-
-        Returns:
-        -------
-        Tuple[Optional[str], str, Optional[Dict[str, Any]]]
-            A tuple containing:
-            - table_id (str): The ID of the added table, or None if an error occurs.
-            - message (str): A descriptive message about the operation.
-            - response_data (dict): The full response data from the API, or None if an error occurs.
-
-        Usage:
-        -----
-        # Initialize the DatasetManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        dataset_manager = DatasetManager(base_url, Auth_manager)
-
-        # Add the table to the dataset
-        dataset_id = "your_dataset_id"  # Replace with the actual dataset ID
-        table_name = "your_table_name"  # Define the name of the new table to add
-
-        # Attempt to add the DataFrame (df) as a table to the specified dataset
-        try:
-            table_id, message, response_data = table_manager.add_table(dataset_id, df, table_name)
-            print(message)
-            if table_id:
-                print(f"Table added successfully with ID: {table_id}")
-        except Exception as e:
-            print(f"Error adding table to dataset: {e}")
         """
         url = f"{self.api_url}dataset/{dataset_id}/table/"
         headers = self._get_headers()
@@ -460,39 +290,6 @@ for table_id, (success, message) in results.items():
         This method sends a GET request to the dataset API endpoint to retrieve
         a table by its ID. The response is returned in JSON format, including
         the table ID.
-
-        Args:
-        ----
-        dataset_id : str
-            The ID of the dataset.
-        table_id : str
-            The ID of the table to retrieve.
-
-        Returns:
-        -------
-        Optional[Dict[str, Any]]
-            The table data in JSON format, including the table ID. If the request
-            fails or the table is not found, None is returned.
-
-        Usage:
-        -----
-        # Initialize the DatasetManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        dataset_manager = DatasetManager(base_url, Auth_manager)
-
-        # Retrieve a table from the dataset
-        dataset_id = "your_dataset_id"  # Replace with the actual dataset ID
-        table_id = "your_table_id"  # Replace with the actual table ID
-
-        try:
-            table_data = table_manager.get_table(dataset_id, table_id)
-            if table_data:
-                print(f"Table with id '{table_id}' retrieved successfully!")
-            else:
-                print(f"Table with id '{table_id}' not found in the dataset.")
-        except Exception as e:
-            print(f"Error retrieving table '{table_id}': {e}")
         """
         url = f"{self.api_url}dataset/{dataset_id}/table/{table_id}"
         headers = self._get_headers()
@@ -555,40 +352,6 @@ for table_id, (success, message) in results.items():
         This method sends DELETE requests to the dataset API endpoint to remove
         tables by their IDs. It processes the API responses to confirm the deletions.
 
-        Args:
-        ----
-        dataset_id : str
-            The ID of the dataset containing the tables.
-        table_ids : List[str]
-            A list of table IDs to be deleted.
-
-        Returns:
-        -------
-        Dict[str, Tuple[bool, str]]
-            A dictionary where each key is a table ID and each value is a tuple containing:
-            - success (bool): True if the table was deleted successfully, False otherwise.
-            - message (str): A descriptive message about the operation.
-
-        Usage:
-        -----
-        # Initialize the DatasetManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        dataset_manager = DatasetManager(base_url, Auth_manager)
-
-        # Delete multiple tables from the dataset
-        dataset_id = "your_dataset_id"  # Replace with the actual dataset ID
-        table_ids = ["table_id_1", "table_id_2"]  # Replace with the actual table IDs
-
-        try:
-            results = table_manager.delete_tables(dataset_id, table_ids)
-            for table_id, (success, message) in results.items():
-                if success:
-                    print(f"Table with id '{table_id}' deleted successfully.")
-                else:
-                    print(f"Failed to delete table '{table_id}': {message}")
-        except Exception as e:
-            print(f"Error deleting tables: {e}")
         """
         results = {}
         headers = self._get_headers()

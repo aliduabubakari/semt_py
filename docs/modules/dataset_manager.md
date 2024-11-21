@@ -1,183 +1,193 @@
-# Dataset Manager Tutorial
+# DatasetManager Documentation
 
-This guide explains how to use the Dataset Manager to work with datasets through API interactions. The Dataset Manager provides functions to list, add, and delete datasets while handling all the API communication details for you.
+## Table of Contents
+- [Installation](#installation)
+- [Class Overview](#class-overview)
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get_dataset_list](#get_dataset_list)
+  - [get_dataset_description](#get_dataset_description)
+  - [get_dataset_parameters](#get_dataset_parameters)
+  - [get_datasets](#get_datasets)
+- [Usage Examples](#usage-examples)
+- [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
 
-## Setting Up Dataset Manager
+## Installation
 
-First, you'll need to set up the Dataset Manager with your API credentials:
+```python
+pip install semt_py
+```
 
+## Class Overview
+
+The `DatasetManager` class provides a comprehensive interface for managing datasets through API interactions. It handles authentication, request formatting, and response processing while providing convenient methods for dataset operations.
+
+## Constructor
+
+```python
+def __init__(self, base_url: str, Auth_manager: AuthManager)
+```
+
+### Parameters:
+- `base_url` (str): The base URL of the API endpoint
+- `Auth_manager` (AuthManager): An instance of AuthManager for handling authentication
+
+### Example:
 ```python
 from semt_py import DatasetManager, AuthManager
 
-# First set up authentication
-auth_manager = AuthManager(
-    api_url="https://api.example.com",
-    username="your_username",
-    password="your_password"
-)
+auth_manager = AuthManager(api_url="https://api.example.com", 
+                         username="your_username", 
+                         password="your_password")
 
-# Then initialize Dataset Manager
-dataset_manager = DatasetManager(
-    base_url="https://api.example.com",
-    Auth_manager=auth_manager
-)
+dataset_manager = DatasetManager(base_url="https://api.example.com", 
+                               Auth_manager=auth_manager)
 ```
 
-## Core Functions
+## Methods
 
-### 1. Listing Available Dataset Functions (`get_dataset_list`)
-
-Want to see what operations you can perform with datasets? Use `get_dataset_list`:
+### get_dataset_list
 
 ```python
-# Get list of available functions
-available_functions = dataset_manager.get_dataset_list()
-print(available_functions)
-
-# Output will be:
-# ['get_datasets', 'add_dataset', 'delete_dataset']
+def get_dataset_list(self) -> List[str]
 ```
 
-**When to use this:**
-- When exploring the Dataset Manager's capabilities
-- When you need to check available dataset operations
-- For documentation purposes
+Returns a list of available dataset function names.
 
-### 2. Understanding Dataset Functions (`get_dataset_description`)
+#### Returns:
+- List[str]: Available function names
 
-Need details about what each function does? Use `get_dataset_description`:
+#### Example:
+```python
+functions = dataset_manager.get_dataset_list()
+print(functions)  # ['get_datasets', 'add_dataset', 'delete_dataset']
+```
+
+### get_dataset_description
 
 ```python
-# Get descriptions of all functions
+def get_dataset_description(self) -> Dict[str, Dict[str, str]]
+```
+
+Provides detailed descriptions of all dataset functions.
+
+#### Returns:
+- Dict[str, Dict[str, str]]: Dictionary containing function descriptions
+
+#### Example:
+```python
 descriptions = dataset_manager.get_dataset_description()
-
-# Print descriptions in a readable format
-for func_name, details in descriptions.items():
-    print(f"\nFunction: {func_name}")
-    for key, value in details.items():
+for func, info in descriptions.items():
+    print(f"\nFunction: {func}")
+    for key, value in info.items():
         print(f"{key}: {value}")
-
-# Output will include details like:
-# Function: get_datasets
-# description: Retrieves the list of datasets from the server
-# returns: pandas DataFrame containing dataset information
-# raises: RequestException if API call fails, ValueError if JSON decoding fails
 ```
 
-### 3. Getting Detailed Function Information (`get_dataset_parameters`)
-
-Want to know exactly how to use a specific function? Use `get_dataset_parameters`:
+### get_dataset_parameters
 
 ```python
-# Get detailed information about the get_datasets function
+def get_dataset_parameters(self, function_name: str) -> Dict[str, Any]
+```
+
+Provides detailed parameter information for a specific dataset function.
+
+#### Parameters:
+- `function_name` (str): Name of the function to get parameters for
+
+#### Returns:
+- Dict[str, Any]: Dictionary containing parameter information
+
+#### Example:
+```python
 info = dataset_manager.get_dataset_parameters('get_datasets')
 print(info)
-
-# This will show:
-# - Required parameters
-# - Usage examples
-# - Example values
 ```
 
-### 4. Working with Datasets (`get_datasets`)
-
-The main function you'll use to retrieve datasets:
+### get_datasets
 
 ```python
-# Get list of all datasets
-datasets_df = dataset_manager.get_datasets(debug=False)
+def get_datasets(self, debug: bool = False) -> pd.DataFrame
+```
 
-# With debug information
+Retrieves the list of datasets from the server.
+
+#### Parameters:
+- `debug` (bool, optional): Enable debug mode. Defaults to False.
+
+#### Returns:
+- pd.DataFrame: DataFrame containing dataset information
+
+#### Example:
+```python
 datasets_df = dataset_manager.get_datasets(debug=True)
-
-# The result is a pandas DataFrame containing your datasets
 print(datasets_df)
 ```
 
-**Debug Mode Features:**
-- Shows API response status codes
-- Displays metadata information
-- Helps troubleshoot any issues
+## Usage Examples
 
-## Complete Working Example
-
-Here's a full example showing how to use the Dataset Manager:
-
+### Basic Usage
 ```python
 from semt_py import DatasetManager, AuthManager
-import pandas as pd
 
-# 1. Set up authentication
-auth_manager = AuthManager(
-    api_url="https://api.example.com",
-    username="your_username",
-    password="your_password"
-)
+# Setup
+auth_manager = AuthManager("https://api.example.com", "username", "password")
+dataset_manager = DatasetManager("https://api.example.com", auth_manager)
 
-# 2. Initialize Dataset Manager
-dataset_manager = DatasetManager(
-    base_url="https://api.example.com",
-    Auth_manager=auth_manager
-)
+# Get available datasets
+datasets = dataset_manager.get_datasets()
+print(datasets)
 
-# 3. List available functions
-functions = dataset_manager.get_dataset_list()
-print("Available functions:", functions)
-
-# 4. Get descriptions
-descriptions = dataset_manager.get_dataset_description()
-print("\nFunction descriptions:")
-for func, desc in descriptions.items():
-    print(f"\n{func}:", desc['description'])
-
-# 5. Get detailed parameters for get_datasets
-params = dataset_manager.get_dataset_parameters('get_datasets')
-print("\nParameters for get_datasets:", params)
-
-# 6. Retrieve datasets
-try:
-    # Get datasets with debug info
-    datasets = dataset_manager.get_datasets(debug=True)
-    
-    # Display the results
-    if not datasets.empty:
-        print("\nAvailable datasets:")
-        print(datasets)
-    else:
-        print("\nNo datasets found or error occurred")
-        
-except Exception as e:
-    print(f"Error: {e}")
+# Get function information
+info = dataset_manager.get_dataset_parameters('get_datasets')
+print(info)
 ```
 
-## Common Questions and Tips
+### Advanced Usage
+```python
+# Enable debug mode for detailed information
+datasets = dataset_manager.get_datasets(debug=True)
 
-1. **Error Handling**
-   - Always wrap API calls in try-except blocks
-   - Use debug=True when troubleshooting
-   - Check the response status codes and messages
+# Get comprehensive function descriptions
+descriptions = dataset_manager.get_dataset_description()
+for func, desc in descriptions.items():
+    print(f"\n{func}:", desc['description'])
+```
 
-2. **Best Practices:**
-   - Keep track of your dataset IDs
-   - Use meaningful dataset names
-   - Regular list and clean up unused datasets
+## Error Handling
 
-3. **Performance Tips:**
+The DatasetManager implements comprehensive error handling:
+
+```python
+try:
+    datasets = dataset_manager.get_datasets()
+except requests.RequestException as e:
+    print(f"API request failed: {e}")
+except ValueError as e:
+    print(f"Data processing error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Best Practices
+
+#### 1. **Authentication Management**
+   - Always securely store credentials
+   - Implement token refresh mechanisms
+   - Use environment variables for sensitive data
+
+#### 2. **Error Handling**
+   - Implement try-catch blocks for API calls
+   - Enable debug mode during development
+   - Log errors appropriately
+
+#### 3. **Performance Optimization**
+   - Cache results when appropriate
    - Minimize debug mode usage in production
-   - Cache dataset lists when appropriate
-   - Reuse the Dataset Manager instance
+   - Implement request timeouts
 
-4. **Common Issues:**
-   - Connection errors: Check your internet and API URL
-   - Authentication errors: Verify your credentials
-   - Empty results: Use debug mode to investigate
-
-## Need Help?
-
-- Use `get_dataset_description()` to understand available functions
-- Check function parameters with `get_dataset_parameters()`
-- Enable debug mode to get more detailed error information
-- Make sure your authentication is properly set up
-
-Remember to handle your API credentials securely and never share them in your code or version control system!
+#### 4. **Data Management**
+   - Validate data before sending to API
+   - Handle large datasets in chunks
+   - Implement proper cleanup procedures
 ```

@@ -4,41 +4,18 @@ import copy
 import datetime
 import pandas as pd
 from urllib.parse import urljoin
-from .Auth_manager import AuthManager
+from .auth_manager import AuthManager
 from typing import Dict, Any, Optional
 import logging
 
 class ReconciliationManager:
     """
     A class to manage reconciliation operations through API interactions.
-
-    This class provides methods to interact with a reconciliation API, allowing users
-    to retrieve lists of reconciliators and their parameters. It handles authentication
-    via a token manager and uses a random user agent for requests.
-
-    Attributes:
-    ----------
-    base_url : str
-        The base URL for the API.
-    Auth_manager : TokenManager
-        An instance of a token manager to handle authentication.
-    logger : logging.Logger
-        A logger for logging messages and errors.
-
-    Methods:
-    -------
-    get_reconciliators_list(debug: bool = False) -> pd.DataFrame
-        Retrieves and cleans the list of reconciliators.
-    get_reconciliator_parameters(id_reconciliator: str, debug: bool = False) -> Optional[Dict[str, Any]]
-        Retrieves the parameters needed for a specific reconciliator service.
     """
 
     def __init__(self, base_url, Auth_manager):
         """
         Initialize the ReconciliationManager with the base URL and token manager.
-
-        :param base_url: The base URL for the API.
-        :param Auth_manager: An instance of a token manager to handle authentication.
         """
         self.base_url = base_url.rstrip('/') + '/'
         self.api_url = urljoin(self.base_url, 'api/')
@@ -49,7 +26,6 @@ class ReconciliationManager:
         """
         Generate the headers required for API requests, including authorization.
 
-        :return: A dictionary containing the headers for the API request.
         """
         return {
             'Authorization': f'Bearer {self.Auth_manager.get_token()}',
@@ -108,29 +84,6 @@ class ReconciliationManager:
         """
         Retrieves and cleans the list of reconciliators.
 
-        Args:
-        ----
-        debug : bool
-            If True, prints additional information when retrieving data.
-
-        Returns:
-        -------
-        pd.DataFrame
-            DataFrame containing the cleaned list of reconciliators.
-
-        Usage:
-        -----
-        # Initialize the ReconciliationManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url, username, password)
-        reconciliation_manager = ReconciliationManager(base_url, Auth_manager)
-
-        # Retrieve the list of reconciliators
-        try:
-            reconciliators_df = reconciliation_manager.get_reconciliators_list(debug=True)
-            print(reconciliators_df)
-        except Exception as e:
-            print(f"Error retrieving reconciliators list: {e}")
         """
         response = self._get_reconciliator_data(debug=debug)
         if response is not None:
@@ -214,18 +167,6 @@ class ReconciliationManager:
     def get_reconciliator_parameters(self, id_reconciliator: str, debug: bool = False) -> Optional[Dict[str, Any]]:
         """
         Get reconciliator parameters and display them in a formatted way.
-    
-        Args:
-        ----
-        id_reconciliator : str
-            The ID of the reconciliator to get parameters for.
-        debug : bool
-            If True, display debug information along with formatted parameters.
-    
-        Returns:
-        -------
-        Optional[Dict[str, Any]]
-            Dictionary containing mandatory and optional parameters if found, None otherwise.
         """
         reconciliator_data = self._get_reconciliator_data(debug=debug)
         if not reconciliator_data:
@@ -267,7 +208,6 @@ class ReconciliationManager:
             print(f"No parameters found for reconciliator with ID '{id_reconciliator}'.")
         return None
 
-    
     def _prepare_input_data(self, original_input, column_name, reconciliator_id, optional_columns):
         """
         Prepare the input data for the reconciliation process.
@@ -507,65 +447,6 @@ class ReconciliationManager:
     def reconcile(self, table_data, column_name, reconciliator_id, optional_columns):
         """
         Perform the reconciliation process on a specified column in the provided table data.
-    
-        This method interacts with an external reconciliation service (like geocoding or geonames)
-        to update and correct the values in the specified column based on the chosen service.
-        
-        The process involves:
-        - Preparing the input data with the necessary columns.
-        - Sending a reconciliation request to the chosen service.
-        - Handling the service's response to generate a final payload.
-        - Creating a payload for backend consumption.
-    
-        :param table_data: List of dictionaries representing rows and columns of the input table data.
-        :param column_name: The name of the column in table_data that needs to be reconciled.
-        :param reconciliator_id: The identifier for the reconciliation service to be used. 
-                                 Must be one of ['geocodingHere', 'geocodingGeonames', 'geonames'].
-        :param optional_columns: List of optional column names from the input table to include in the reconciliation process.
-        :return: A tuple (final_payload, backend_payload):
-                 - final_payload: The reconciled table data with updated values.
-                 - backend_payload: The data prepared for backend use, containing necessary metadata and reconciliation info.
-                 Returns (None, None) if reconciliation fails.
-        :raises: ValueError if an invalid reconciliator_id is provided.
-    
-        Usage:
-        -----
-        # Initialize the ReconciliationManager with API credentials
-        base_url = "https://api.example.com"
-        Auth_manager = TokenManager(api_url="https://api.example.com/token", username="user", password="pass")
-        reconciliation_manager = ReconciliationManager(base_url, Auth_manager)
-    
-        # Retrieve parameters for a specific reconciliator
-        try:
-            parameters = reconciliation_manager.get_reconciliator_parameters('geocodingHere', debug=True)
-            print(parameters)
-        except Exception as e:
-            print(f"Error retrieving reconciliator parameters: {e}")
-    
-        # Example table data
-        table_data = [
-            {"id": 1, "address": "123 Main St", "city": "Anytown"},
-            {"id": 2, "address": "456 Oak St", "city": "Othertown"}
-        ]
-        
-        # Perform reconciliation
-        column_name = "address"
-        reconciliator_id = "geocodingHere"
-        optional_columns = ["city"]
-    
-        try:
-            reconciled_table, backend_payload = reconciliation_manager.reconcile(
-                table_data,
-                column_name,
-                reconciliator_id,
-                optional_columns
-            )
-            if reconciled_table and backend_payload:
-                print("Column reconciled successfully and backend payload created!")
-            else:
-                print("Failed to reconcile column or create backend payload.")
-        except Exception as e:
-            print(f"Error during reconciliation process: {e}")
         """
         # Check if the provided reconciliator_id is valid
         if reconciliator_id not in ['geocodingHere', 'geocodingGeonames', 'geonames']:

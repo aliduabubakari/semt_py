@@ -161,6 +161,7 @@ html_table = Utility.display_json_table(json_table, number_of_rows=2, labels=['N
 ## Error Handling
 
 The class includes error handling for:
+
 - Failed API requests
 - File download issues
 - JSON parsing errors
