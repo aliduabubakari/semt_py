@@ -14,6 +14,7 @@ ENV/
 
 # Jupyter Notebook
 test_notebooks/
+test_notebook/
 .ipynb_checkpoints
 *.ipynb
 
