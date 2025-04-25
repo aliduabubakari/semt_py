@@ -3,19 +3,19 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "semt_py""
+name = "semt_py"
 version = "0.1"
 description = "A utility package for Semantic Enrichment of Tables"
 readme = "README.md"
 authors = [
-    { name = "Alidu Abubakari", email = "a.abubakari@campus.unimib.it" }
+    {name = "Alidu Abubakari", email = "a.abubakari@campus.unimib.it"}
 ]
-license = { text = "MIT" }
+license = {text = "MIT"}
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
+    "Operating System :: OS Independent"
 ]
 dependencies = [
     "pandas",
@@ -24,11 +24,8 @@ dependencies = [
     "PyJWT",
     "fake-useragent",
     "requests",
-    "python-dateutil",
+    "python-dateutil"
 ]
-
-[project.urls]
-Homepage = "https://github.com/aliduabubakari/semt_py.git"
 
 [tool.hatch.build.targets.wheel]
 packages = ["semt_py"]
